@@ -12,12 +12,27 @@
 #include "raylib.h"
 #include <vector>
 
-bool collisionCheck(Rectangle player, std::vector<Rectangle> pipes) {
+bool collisionCheckRectangle(Rectangle player, std::vector<Rectangle> pipes) {
 	
 	for (auto &pipe : pipes) {
 		if (CheckCollisionRecs(player, pipe)) {
 			return true;
 		}
+	}
+
+	return false;
+}
+
+struct Triangle {
+	Vector2 vertex1;
+	Vector2 vertex2;
+	Vector2 vertex3;
+};
+
+bool collisionCheckTritangle(Rectangle player, std::vector<Triangle> pipes) {
+
+	for (auto &pipe : pipes) {
+		
 	}
 
 	return false;
@@ -37,6 +52,23 @@ void movePipes(std::vector<Rectangle>& pipes) {
 	}
 }
 
+void printBricks(std::vector<Triangle>& bricks) {
+
+	for (auto &brick : bricks) {
+		DrawTriangle(brick.vertex1,brick.vertex2,brick.vertex3, BLACK);
+	}
+
+}
+
+void moveBricks(std::vector<Triangle>& bricks) {
+
+	for (auto &brick : bricks) {
+		brick.vertex1.x -= 2;
+		brick.vertex2.x -= 2;
+		brick.vertex3.x -= 2;
+	}
+
+}
 int main()
 {
 	// Initialization
@@ -62,7 +94,7 @@ int main()
 	ImageResize(&mariojumpR, 24, 24);
 	Texture2D jumpR = LoadTextureFromImage(mariojumpR);
 
-	Image mariostandL = LoadImage("mariostandL.png");
+	/*Image mariostandL = LoadImage("mariostandL.png");
 	ImageResize(&mariostandL, 24, 24);
 	Texture2D standL = LoadTextureFromImage(mariostandL);
 
@@ -76,7 +108,7 @@ int main()
 
 	Image mariojumpL = LoadImage("mariojumpL.png");
 	ImageResize(&mariojumpL, 24, 24);
-	Texture2D jumpL = LoadTextureFromImage(mariojumpL);
+	Texture2D jumpL = LoadTextureFromImage(mariojumpL);*/
 
 	Image mariolevel = LoadImage("mariobird.png");
 	Texture2D level = LoadTextureFromImage(mariolevel);
@@ -87,7 +119,7 @@ int main()
 
 	int y = 0;
 	float x = 0;
-	Rectangle player = { screenWidth / 2 - 20 / 2, (screenHeight / 2 - 20 / 2), 20, 20 };
+	Rectangle player = { screenWidth / 2 - 20 / 2, (screenHeight / 2 - 20 / 2), 10, 10 };
 	std::vector<Rectangle> pipes;
 	Rectangle pipe1d = { 449,170 + 100,30,30 };
 	pipes.push_back(pipe1d);
@@ -101,10 +133,78 @@ int main()
 	pipes.push_back(pipe2u);
 	Rectangle pipe3u = { 737,0 + 100,30,58 };
 	pipes.push_back(pipe3u);
+	Rectangle pipe4d = { 914,138 + 100,30,67 };
+	pipes.push_back(pipe4d);
+	Rectangle pipe4u = { 914,0 + 100,30,70 };
+	pipes.push_back(pipe4u);
+	Rectangle pipe5d = { 1043,114 + 100,30,95 };
+	pipes.push_back(pipe5d);
+	Rectangle pipe5u = { 1043,0 + 100,30,52 };
+	pipes.push_back(pipe5u);
+	Rectangle pipe6d = { 1188,137 + 100,30,63 };
+	pipes.push_back(pipe6d);
+	Rectangle pipe6u = { 1188,0 + 100,30,79 };
+	pipes.push_back(pipe6u);
+	Rectangle pipe7d = { 1322,161 + 100,30,39 };
+	pipes.push_back(pipe7d);
+	Rectangle pipe7u = { 1322,0 + 100,30,104 };
+	pipes.push_back(pipe7u);
+	Rectangle pipe8d = { 1441,178 + 100,30,22 };
+	pipes.push_back(pipe8d);
+	Rectangle pipe8u = { 1441,0 + 100,30,126 };
+	pipes.push_back(pipe8u);
+	Rectangle pipe9d = { 1625,93 + 100,30,107 };
+	pipes.push_back(pipe9d);
+	Rectangle pipe9u = { 1625,0 + 100,30,35 };
+	pipes.push_back(pipe9u);
+	Rectangle pipe10d = { 1764,160 + 100,30,40 };
+	pipes.push_back(pipe10d);
+	Rectangle pipe10u = { 1764,0 + 100,30,87 };
+	pipes.push_back(pipe10u);
+	Rectangle pipe11d = { 1906,119 + 100,30,81 };
+	pipes.push_back(pipe11d);
+	Rectangle pipe11u = { 1906,0 + 100,30,52 };
+	pipes.push_back(pipe11u);
+	Rectangle pipe12d = { 2053,119 + 100,30,81 };
+	pipes.push_back(pipe12d);
+	Rectangle pipe12u = { 2053,0 + 100,30,54 };
+	pipes.push_back(pipe12u);
+	Rectangle pipe13d = { 2610,169 + 100,30,30 };
+	pipes.push_back(pipe13d);
+	Rectangle pipe14d = { 2785,154 + 100,30,48 };
+	pipes.push_back(pipe14d);
+	Rectangle pipe15d = { 2866,170 + 100,30,30 };
+	pipes.push_back(pipe15d);
+	Rectangle pipe15u = { 2865,0 + 100,30,112 };
+	pipes.push_back(pipe15u);
 
 
-	Rectangle ground = { 0,200 + 100,3392,5 };
+	Rectangle goal = { 3176,0 + 100,3,200 };
+	pipes.push_back(goal);
+
+
+	Rectangle ground = { screenWidth / 2 - 20 / 2,200 + 100,20,5 };
 	
+	std::vector<Triangle> bricks;
+	Triangle brick1 = { Vector2{ 2207,235 }, Vector2{ 2145,300 }, Vector2{ 2207,300 } };
+	bricks.push_back(brick1);
+	Triangle brick2 = { Vector2{ 2238,235 }, Vector2{ 2238,300 }, Vector2{ 2303,300 } };
+	bricks.push_back(brick2);
+	Triangle brick3 = { Vector2{ 2142,100 }, Vector2{ 2205,62 + 100 }, Vector2{ 2205,100 } };
+	bricks.push_back(brick3);
+	Triangle brick4 = { Vector2{ 2236,100 }, Vector2{ 2236,62 + 100 }, Vector2{ 2301,100 } };
+	bricks.push_back(brick4);
+
+
+	Triangle brick5 = { Vector2{ 2343,100 }, Vector2{ 2343,103 + 100 }, Vector2{ 2453,100 } };
+	bricks.push_back(brick5);
+	Triangle brick6 = { Vector2{ 2509,173 }, Vector2{ 2382,300 }, Vector2{ 2509,300 } };
+	bricks.push_back(brick6);
+	Triangle brick7 = { Vector2{ 2600,100 }, Vector2{ 2735,128 + 100 }, Vector2{ 2735,100 } };
+	bricks.push_back(brick7);
+	Triangle brick8 = { Vector2{ 3022,173 }, Vector2{ 2897,300 }, Vector2{ 3022,300 } };
+	bricks.push_back(brick8);
+
 
 	int delay = 0;
 	int alternate = 0;
@@ -112,11 +212,11 @@ int main()
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
 
-		if (CheckCollisionRecs(player, ground) || collisionCheck(player, pipes)) {
+		//if (CheckCollisionRecs(player, ground) || collisionCheckRectangle(player, pipes) ){
 			//game over/ restart screen
-			DrawTexture(level, x * 2, 150, WHITE);
-		}
-		else {
+			//DrawTexture(level, x * 2, 150, WHITE);
+		//}	
+		//else {
 
 			char buffer[20];
 			sprintf_s(buffer, 20, "%f", player.x);
@@ -128,12 +228,16 @@ int main()
 
 			DrawTexture(level, x * 2, 100, WHITE);
 			movePipes(pipes);
-			x--;
-
+			printPipes(pipes);
 			DrawRectangleRec(ground, BLACK);
 
 
+			moveBricks(bricks);
+			printBricks(bricks);
 
+
+
+			x--;
 
 			//background
 			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !click) {
@@ -149,7 +253,6 @@ int main()
 					}
 				}
 
-				printPipes(pipes);
 				DrawRectangleRec(player, BLACK);
 				click = true;
 
@@ -167,7 +270,6 @@ int main()
 					}
 				}
 
-				printPipes(pipes);
 				DrawRectangleRec(player, BLACK);
 				player.y += 1;
 			}
@@ -184,14 +286,11 @@ int main()
 					}
 				}
 
-				printPipes(pipes);
 				DrawRectangleRec(player, BLACK);
 				player.y += 1;
 			}
 			else {
 				DrawTexture(jumpR, screenWidth / 2 - jumpR.width / 2, (int)player.y, WHITE);
-
-				printPipes(pipes);
 				DrawRectangleRec(player, BLACK);
 			}
 
@@ -203,7 +302,7 @@ int main()
 					click = false;
 				}
 			}
-		}
+		//}
 		// Draw
 		//----------------------------------------------------------------------------------
 		BeginDrawing();
