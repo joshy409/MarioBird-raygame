@@ -12,16 +12,6 @@
 #include "raylib.h"
 #include <vector>
 
-bool collisionCheckRectangle(Rectangle player, std::vector<Rectangle> pipes) {
-	
-	for (auto &pipe : pipes) {
-		if (CheckCollisionRecs(player, pipe)) {
-			return true;
-		}
-	}
-
-	return false;
-}
 
 struct Triangle {
 	Vector2 vertex1;
@@ -29,18 +19,21 @@ struct Triangle {
 	Vector2 vertex3;
 };
 
-bool collisionCheckTriangle(Rectangle player, std::vector<Triangle> pipes) {
-
+bool collisionCheckRectangle(Rectangle player, std::vector<Rectangle> pipes) {
+	
 	for (auto &pipe : pipes) {
-		//if (CheckCollisionPointTriangle(Vector2{ player.x, player.y }, pipe.vertex1, pipe.vertex2, pipe.vertex3)) {
-			//return true;
-		//}
+		if (CheckCollisionRecs(player, pipe)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool collisionCheckTriangle(Rectangle player, std::vector<Triangle> pipes) {
+	for (auto &pipe : pipes) {
 		if (CheckCollisionPointTriangle(Vector2{ player.x + 22, player.y+2 }, pipe.vertex1, pipe.vertex2, pipe.vertex3)) {
 			return true;
 		}
-		//else if (CheckCollisionPointTriangle(Vector2{ player.x, player.y + 24 }, pipe.vertex1, pipe.vertex2, pipe.vertex3)) {
-			//return true;
-		//}
 		else if (CheckCollisionPointTriangle(Vector2{ player.x + 22, player.y + 22 }, pipe.vertex1, pipe.vertex2, pipe.vertex3)) {
 			return true;
 		}
@@ -50,25 +43,21 @@ bool collisionCheckTriangle(Rectangle player, std::vector<Triangle> pipes) {
 }
 
 void printPipes(std::vector<Rectangle>& pipes) {
-
 	for (auto &pipe : pipes) {
 		DrawRectangleRec(pipe, BLACK);
 	}
+}
 
+void printBricks(std::vector<Triangle>& bricks) {
+	for (auto &brick : bricks) {
+		DrawTriangle(brick.vertex1,brick.vertex2,brick.vertex3, BLACK);
+	}
 }
 
 void movePipes(std::vector<Rectangle>& pipes, int speed) {
 	for (auto &pipe : pipes) {
 		pipe.x -= speed;
 	}
-}
-
-void printBricks(std::vector<Triangle>& bricks) {
-
-	for (auto &brick : bricks) {
-		DrawTriangle(brick.vertex1,brick.vertex2,brick.vertex3, BLACK);
-	}
-
 }
 
 void moveBricks(std::vector<Triangle>& bricks, int speed) {
@@ -80,57 +69,10 @@ void moveBricks(std::vector<Triangle>& bricks, int speed) {
 	}
 
 }
-int main()
-{
-	// Initialization
-	//--------------------------------------------------------------------------------------
-	int screenWidth = 800;
-	int screenHeight = 450;
 
-	InitWindow(screenWidth, screenHeight, "Super Mario raylib");
-
-	Image mariostandR = LoadImage("mariostandR.png");
-	ImageResize(&mariostandR, 24, 24);
-	Texture2D standR = LoadTextureFromImage(mariostandR);
-
-	Image mariorunR = LoadImage("mariorunR.png");
-	ImageResize(&mariorunR, 24, 24);
-	Texture2D runR = LoadTextureFromImage(mariorunR);
-
-	Image marioslideR = LoadImage("marioslideR.png");
-	ImageResize(&marioslideR, 24, 24);
-	Texture2D slideR = LoadTextureFromImage(marioslideR);
-
-	Image mariojumpR = LoadImage("mariojumpR.png");
-	ImageResize(&mariojumpR, 24, 24);
-	Texture2D jumpR = LoadTextureFromImage(mariojumpR);
-
-	Image mariolevel = LoadImage("mariobird.png");
-	Texture2D level = LoadTextureFromImage(mariolevel);
-
-	Image mariodead = LoadImage("mariodead.png");
-	ImageResize(&mariodead, 24, 24);
-	Texture2D dead = LoadTextureFromImage(mariodead);
-
-	Image over = LoadImage("over.png");
-	Texture2D endscreen = LoadTextureFromImage(over);
-
-	Image start = LoadImage("startred.png");
-	Texture2D startred = LoadTextureFromImage(start);
-
-	Image start1 = LoadImage("startblue.png");
-	Texture2D startblue = LoadTextureFromImage(start1);
-
-	SetTargetFPS(60);
-
-	//--------------------------------------------------------------------------------------
-	// Main game loop
-
-	int y = 0;
-	float x = 0;
-	Rectangle player = { 250, 225, 22, 22 };
-
-	std::vector<Rectangle> pipes;
+//initializing pipes
+void pipeclear(std::vector<Rectangle>& pipes) {
+	pipes.clear();
 	Rectangle pipe1d = { 449,170 + 100,30,30 };
 	pipes.push_back(pipe1d);
 	Rectangle pipe2d = { 610,154 + 100,30,50 };
@@ -187,18 +129,16 @@ int main()
 	pipes.push_back(pipe15d);
 	Rectangle pipe15u = { 2865,0 + 100,30,112 };
 	pipes.push_back(pipe15u);
-
-
+	Rectangle ground = { 380 / 2,200 + 100,20,5 };
+	pipes.push_back(ground);
 	Rectangle goal = { 3176,0 + 100,3,200 };
 	pipes.push_back(goal);
 
-	Rectangle button = {298, 142 + 100, 167, 53};
-	
+}
 
-
-	Rectangle ground = { screenWidth / 2 - 20 / 2,200 + 100,20,5 };
-	
-	std::vector<Triangle> bricks;
+//initializing
+void brickclear(std::vector<Triangle>& bricks) {
+	bricks.clear();
 	Triangle brick1 = { Vector2{ 2207,235 }, Vector2{ 2145,300 }, Vector2{ 2207,300 } };
 	bricks.push_back(brick1);
 	Triangle brick2 = { Vector2{ 2238,235 }, Vector2{ 2238,300 }, Vector2{ 2303,300 } };
@@ -215,38 +155,105 @@ int main()
 	bricks.push_back(brick7);
 	Triangle brick8 = { Vector2{ 3022,173 }, Vector2{ 2897,300 }, Vector2{ 3022,300 } };
 	bricks.push_back(brick8);
+}
 
+int main()
+{
+	// Initialization
+	//--------------------------------------------------------------------------------------
+	int screenWidth = 800;
+	int screenHeight = 450;
+
+	InitWindow(screenWidth, screenHeight, "Super Mario raylib");
+
+	Image mariostandR = LoadImage("marioimage/mariostandR.png");
+	ImageResize(&mariostandR, 24, 24);
+	Texture2D standR = LoadTextureFromImage(mariostandR);
+
+	Image mariorunR = LoadImage("marioimage/mariorunR.png");
+	ImageResize(&mariorunR, 24, 24);
+	Texture2D runR = LoadTextureFromImage(mariorunR);
+
+	Image marioslideR = LoadImage("marioimage/marioslideR.png");
+	ImageResize(&marioslideR, 24, 24);
+	Texture2D slideR = LoadTextureFromImage(marioslideR);
+
+	Image mariojumpR = LoadImage("marioimage/mariojumpR.png");
+	ImageResize(&mariojumpR, 24, 24);
+	Texture2D jumpR = LoadTextureFromImage(mariojumpR);
+
+	Image mariolevel = LoadImage("marioimage/mariobird.png");
+	Texture2D level = LoadTextureFromImage(mariolevel);
+
+	Image mariodead = LoadImage("marioimage/mariodead.png");
+	ImageResize(&mariodead, 24, 24);
+	Texture2D dead = LoadTextureFromImage(mariodead);
+
+	Image over = LoadImage("marioimage/over.png");
+	Texture2D endscreen = LoadTextureFromImage(over);
+
+	Image start = LoadImage("marioimage/startred.png");
+	Texture2D startred = LoadTextureFromImage(start);
+
+	Image start1 = LoadImage("marioimage/startblue.png");
+	Texture2D startblue = LoadTextureFromImage(start1);
+
+	Image youwin = LoadImage("marioimage/youwin.png");
+	Texture2D winscreen = LoadTextureFromImage(youwin);
+
+	int y = 0;
+	float x = 0;
+	Rectangle player = { 250, 225, 22, 22 };
+
+	std::vector<Rectangle> pipes;
+	pipeclear(pipes);
+	
+	std::vector<Triangle> bricks;
+	brickclear(bricks);
+
+	//start button
+	Rectangle button = { 298, 142 + 100, 167, 53 };
+
+	//variables to control loop speed
+	int delay = 0;
+	int alternate = 0;
+
+
+	bool click = false;
+
+	//intial game setting
+	int speed = 2;
+	bool gameover = false;
+	bool gwin = false;
+	bool play = true;
+
+	//audio loading
 	InitAudioDevice();
 	
 	Music bgm = LoadMusicStream("mariosound/mariotheme.ogg");
 	Sound win = LoadSound("mariosound/win.ogg");
+	Sound clear = LoadSound("mariosound/clear.ogg");
 	Sound jump = LoadSound("mariosound/jump.ogg");
 	SetSoundVolume(jump, .3f);
 	Sound death = LoadSound("mariosound/death.ogg");
 	Sound gover = LoadSound("mariosound/gover.ogg");
 
-	int delay = 0;
-	int alternate = 0;
-	bool click = false;
-	int speed = 2;
-	bool gameover = false;
-	bool play = true;
-	//TODO: add mario sound
-	EnableCursor();
-	ShowCursor();
-	
-
-	
-	bool yyay = true;
-	bool byay = true;
-
+	//variables used to only play sound once
+	bool once1 = true;
+	bool once2 = true;
+	bool once3 = true;
 
 	PlayMusicStream(bgm);
 
+	EnableCursor();
+	ShowCursor();
+
+	//--------------------------------------------------------------------------------------
+	// Main game loop
+	SetTargetFPS(60);
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
 		UpdateMusicStream(bgm);
-		//TODO: win screen
 
 		//if play button is clicked, play the game;
 		if (play) {
@@ -262,46 +269,106 @@ int main()
 				HideCursor();
 			}
 		}
+		//play game
 		else {
 
-			// if player collides with anything
-			if (CheckCollisionRecs(player, ground) || collisionCheckRectangle(player, pipes) || (collisionCheckTriangle(player, bricks)) || gameover) {
-				gameover = true;
+			//if the player collides with goal
+			if (CheckCollisionRecs(player, pipes[pipes.size() - 1 ]) || gwin) {
 				StopMusicStream(bgm);
-				if (yyay) {
-					PlaySound(death);
-					yyay = false;
+				gwin = true;
+
+				if (once1) { //play the win sound
+					PlaySound(win);
+					once1 = false;
 				}
-				if (player.y < 650) {
-					DrawTexture(level, x * speed, 100, WHITE);
-					DrawTexture(dead, int(player.x) - 1, (int)player.y - 2, WHITE);
-					player.y += 2;
+
+				if (!IsSoundPlaying(win)) { //when win sound is done playing display winscreen and play clear sound
+					DrawTexture(winscreen, 46, 56, WHITE);
+					if (once2) {
+						PlaySound(clear);
+						once2 = false;
+					}
 				}
 				else {
-					if (!IsSoundPlaying(death)) {
-						if (byay) {
-							PlaySound(gover);
-							byay = false;
-						}
-						DrawTexture(endscreen, 0, 100, WHITE);
+					if (player.y < 280) { //charcter slides down the rope
+						DrawTexture(level, x * speed, 100, WHITE);
+						DrawTexture(jumpR, int(player.x) - 1, (int)player.y - 2, WHITE);
+						player.y += 2;
 					}
 					else {
-						DrawTexture(endscreen, 0, 100, WHITE);
+						DrawTexture(level, x * speed, 100, WHITE);
+						DrawTexture(jumpR, int(player.x) - 1, (int)player.y - 2, WHITE);
 					}
 				}
+
+				if (!IsSoundPlaying(win) && !IsSoundPlaying(clear)) { // if both win and clear sound finished playing restart the game
+					//resetting game variables
+					x = 0;
+					player.y = 225;
+					player.x = 250;
+					play = true;
+					gameover = false;
+					gwin = false;
+					once1 = true;
+					once2 = true;
+					once3 = true;
+					ShowCursor();
+					pipeclear(pipes);
+					brickclear(bricks);
+					PlayMusicStream(bgm);
+					continue; //go to the start of the loop
+				}
+
+			//when player collides with any pipes or bricks
+			} else if (collisionCheckRectangle(player, pipes) || (collisionCheckTriangle(player, bricks)) || gameover) { 
+				gameover = true;
+				StopMusicStream(bgm);
+
+				if (once1) { //play the death sound once
+					PlaySound(death);
+					once1 = false;
+				}
+
+				if (!IsSoundPlaying(death)) { //when death sound is done playing display endscreen and play gover sound
+					DrawTexture(endscreen, 0, 100, WHITE);
+					if (once2) {
+						PlaySound(gover);
+						once2 = false;
+					}
+				}
+				else {
+					if (player.y < 650) { //player falls of the screen
+						DrawTexture(level, x * speed, 100, WHITE);
+						DrawTexture(dead, int(player.x) - 1, (int)player.y - 2, WHITE);
+						player.y += 2;
+					}
+					else {
+						DrawTexture(level, x * speed, 100, WHITE);
+					}
+				}
+
+				if (!IsSoundPlaying(gover) && !IsSoundPlaying(death)) {
+					//resetting game variables
+					x = 0;
+					player.y = 225;
+					player.x = 250;
+					play = true;
+					gameover = false;
+					gwin = false;
+					once1 = true;
+					once2 = true;
+					once3 = true;
+					ShowCursor();
+					PlayMusicStream(bgm);
+					pipeclear(pipes);
+					brickclear(bricks);
+					continue; //go to the start of the loop
+				}
 			}
-			else { 
-				//game logic
+			else {
+				//game play
 
-				//char buffer[20];
-				//sprintf_s(buffer, 20, "%f", player.x);
-
-				//char buffer3[20];
-				//sprintf_s(buffer3, 20, "%f", player.y);
-
-				//DrawText(buffer, 0, 400, 3, BLACK);
-				//DrawText(buffer3, 0, 410, 3, BLACK);
-
+				//move the background
 				if (player.x < 389) {
 					player.x += 2;
 					DrawTexture(level, x * speed, 100, WHITE);
@@ -313,9 +380,10 @@ int main()
 					x--;
 				}
 
-				//background
+				//game command logic
 				if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !click) {
 					PlaySound(jump);
+					//alternate runR and slideR image so that mario looks like its running
 					if (alternate % 10 > 5) {
 						DrawTexture(runR, int(player.x) - 1, (int)player.y - 1, WHITE);
 						alternate++;
@@ -330,6 +398,7 @@ int main()
 					click = true;
 
 				}
+				//alternate runR and slideR image so that mario looks like its running
 				else if (IsMouseButtonUp(MOUSE_LEFT_BUTTON) && !click) {
 					if (alternate % 10 > 5) {
 						DrawTexture(runR, int(player.x) - 1, (int)player.y - 1, WHITE);
@@ -342,9 +411,11 @@ int main()
 							alternate = 0;
 						}
 					}
-					player.y += 1;
+					player.y += 1; //player slowly decends 
 				}
+
 				else if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && !click) {
+					//nothing happens when the left mouse button is held down
 					if (alternate % 10 > 5) {
 						DrawTexture(runR, int(player.x) - 1, (int)player.y - 2, WHITE);
 						alternate++;
@@ -362,7 +433,7 @@ int main()
 					DrawTexture(jumpR, int(player.x) - 1, (int)player.y, WHITE);
 				}
 
-				if (click) {
+				if (click) { //when a player click left mouse button slowly ascend mario up 8 y units
 					player.y -= delay;
 					delay++;
 					if (delay == 8) {
@@ -371,7 +442,6 @@ int main()
 					}
 				}
 			}
-
 		}
 		// Draw
 		//----------------------------------------------------------------------------------
@@ -383,8 +453,6 @@ int main()
 		//----------------------------------------------------------------------------------
 	}
 
-
-	
 	// De-Initialization
 	//--------------------------------------------------------------------------------------   
 	UnloadSound(win);
