@@ -29,10 +29,21 @@ struct Triangle {
 	Vector2 vertex3;
 };
 
-bool collisionCheckTritangle(Rectangle player, std::vector<Triangle> pipes) {
+bool collisionCheckTriangle(Rectangle player, std::vector<Triangle> pipes) {
 
 	for (auto &pipe : pipes) {
-		
+		//if (CheckCollisionPointTriangle(Vector2{ player.x, player.y }, pipe.vertex1, pipe.vertex2, pipe.vertex3)) {
+			//return true;
+		//}
+		if (CheckCollisionPointTriangle(Vector2{ player.x + 22, player.y+2 }, pipe.vertex1, pipe.vertex2, pipe.vertex3)) {
+			return true;
+		}
+		//else if (CheckCollisionPointTriangle(Vector2{ player.x, player.y + 24 }, pipe.vertex1, pipe.vertex2, pipe.vertex3)) {
+			//return true;
+		//}
+		else if (CheckCollisionPointTriangle(Vector2{ player.x + 22, player.y + 22 }, pipe.vertex1, pipe.vertex2, pipe.vertex3)) {
+			return true;
+		}
 	}
 
 	return false;
@@ -46,9 +57,9 @@ void printPipes(std::vector<Rectangle>& pipes) {
 
 }
 
-void movePipes(std::vector<Rectangle>& pipes) {
+void movePipes(std::vector<Rectangle>& pipes, int speed) {
 	for (auto &pipe : pipes) {
-		pipe.x -= 2;
+		pipe.x -= speed;
 	}
 }
 
@@ -60,12 +71,12 @@ void printBricks(std::vector<Triangle>& bricks) {
 
 }
 
-void moveBricks(std::vector<Triangle>& bricks) {
+void moveBricks(std::vector<Triangle>& bricks, int speed) {
 
 	for (auto &brick : bricks) {
-		brick.vertex1.x -= 2;
-		brick.vertex2.x -= 2;
-		brick.vertex3.x -= 2;
+		brick.vertex1.x -= speed;
+		brick.vertex2.x -= speed;
+		brick.vertex3.x -= speed;
 	}
 
 }
@@ -94,24 +105,22 @@ int main()
 	ImageResize(&mariojumpR, 24, 24);
 	Texture2D jumpR = LoadTextureFromImage(mariojumpR);
 
-	/*Image mariostandL = LoadImage("mariostandL.png");
-	ImageResize(&mariostandL, 24, 24);
-	Texture2D standL = LoadTextureFromImage(mariostandL);
-
-	Image mariorunL = LoadImage("mariorunL.png");
-	ImageResize(&mariorunL, 24, 24);
-	Texture2D runL = LoadTextureFromImage(mariorunL);
-
-	Image marioslideL = LoadImage("marioslideL.png");
-	ImageResize(&marioslideL, 24, 24);
-	Texture2D slideL = LoadTextureFromImage(marioslideL);
-
-	Image mariojumpL = LoadImage("mariojumpL.png");
-	ImageResize(&mariojumpL, 24, 24);
-	Texture2D jumpL = LoadTextureFromImage(mariojumpL);*/
-
 	Image mariolevel = LoadImage("mariobird.png");
 	Texture2D level = LoadTextureFromImage(mariolevel);
+
+	Image mariodead = LoadImage("mariodead.png");
+	ImageResize(&mariodead, 24, 24);
+	Texture2D dead = LoadTextureFromImage(mariodead);
+
+	Image over = LoadImage("over.png");
+	Texture2D endscreen = LoadTextureFromImage(over);
+
+	Image start = LoadImage("startred.png");
+	Texture2D startred = LoadTextureFromImage(start);
+
+	Image start1 = LoadImage("startblue.png");
+	Texture2D startblue = LoadTextureFromImage(start1);
+
 	SetTargetFPS(60);
 
 	//--------------------------------------------------------------------------------------
@@ -119,7 +128,8 @@ int main()
 
 	int y = 0;
 	float x = 0;
-	Rectangle player = { screenWidth / 2 - 20 / 2, (screenHeight / 2 - 20 / 2), 10, 10 };
+	Rectangle player = { 250, 225, 22, 22 };
+
 	std::vector<Rectangle> pipes;
 	Rectangle pipe1d = { 449,170 + 100,30,30 };
 	pipes.push_back(pipe1d);
@@ -182,6 +192,9 @@ int main()
 	Rectangle goal = { 3176,0 + 100,3,200 };
 	pipes.push_back(goal);
 
+	Rectangle button = {298, 142 + 100, 167, 53};
+	
+
 
 	Rectangle ground = { screenWidth / 2 - 20 / 2,200 + 100,20,5 };
 	
@@ -205,104 +218,170 @@ int main()
 	Triangle brick8 = { Vector2{ 3022,173 }, Vector2{ 2897,300 }, Vector2{ 3022,300 } };
 	bricks.push_back(brick8);
 
+	InitAudioDevice();
+	
+	Music bgm = LoadMusicStream("mariosound/mariotheme.ogg");
+	//Sound bgm = LoadSound("mariosound/mariotheme.ogg");
+	//Sound win = LoadSound("mariosound/win.ogg");
+	Sound jump = LoadSound("mariosound/jump.ogg");
+	SetSoundVolume(jump, .3f);
+	Sound death = LoadSound("mariosound/death.ogg");
+	Sound gover = LoadSound("mariosound/gover.ogg");
 
 	int delay = 0;
 	int alternate = 0;
 	bool click = false;
+	int speed = 2;
+	bool gameover = false;
+	bool play = true;
+	//TODO: add mario sound
+	EnableCursor();
+	ShowCursor();
+	PlayMusicStream(bgm);
+	bool yyay = true;
+	bool byay = true;
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
-
-		//if (CheckCollisionRecs(player, ground) || collisionCheckRectangle(player, pipes) ){
-			//game over/ restart screen
-			//DrawTexture(level, x * 2, 150, WHITE);
-		//}	
-		//else {
-
-			char buffer[20];
-			sprintf_s(buffer, 20, "%f", player.x);
-
-			char buffer2[20];
-			sprintf_s(buffer2, 20, "%f", x);
-			DrawText(buffer, 0, 400, 3, BLACK);
-			DrawText(buffer2, 0, 410, 3, BLACK);
-
-			DrawTexture(level, x * 2, 100, WHITE);
-			movePipes(pipes);
-			printPipes(pipes);
-			DrawRectangleRec(ground, BLACK);
-
-
-			moveBricks(bricks);
-			printBricks(bricks);
-
-
-
-			x--;
-
-			//background
-			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !click) {
-				if (alternate % 10 > 5) {
-					DrawTexture(runR, screenWidth / 2 - jumpR.width / 2, (int)player.y, WHITE);
-					alternate++;
-				}
-				else {
-					DrawTexture(slideR, screenWidth / 2 - jumpR.width / 2, (int)player.y, WHITE);
-					alternate++;
-					if (alternate > 10000) {
-						alternate = 0;
-					}
-				}
-
-				DrawRectangleRec(player, BLACK);
-				click = true;
-
-			}
-			else if (IsMouseButtonUp(MOUSE_LEFT_BUTTON) && !click) {
-				if (alternate % 10 > 5) {
-					DrawTexture(runR, screenWidth / 2 - jumpR.width / 2, (int)player.y, WHITE);
-					alternate++;
-				}
-				else {
-					DrawTexture(slideR, screenWidth / 2 - jumpR.width / 2, (int)player.y, WHITE);
-					alternate++;
-					if (alternate > 10000) {
-						alternate = 0;
-					}
-				}
-
-				DrawRectangleRec(player, BLACK);
-				player.y += 1;
-			}
-			else if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && !click) {
-				if (alternate % 10 > 5) {
-					DrawTexture(runR, screenWidth / 2 - jumpR.width / 2, (int)player.y, WHITE);
-					alternate++;
-				}
-				else {
-					DrawTexture(slideR, screenWidth / 2 - jumpR.width / 2, (int)player.y, WHITE);
-					alternate++;
-					if (alternate > 10000) {
-						alternate = 0;
-					}
-				}
-
-				DrawRectangleRec(player, BLACK);
-				player.y += 1;
+		//TODO: win screen
+		//if play button is clicked, play the game;
+		if (play) {
+			//PlaySound(bgm);
+			if (CheckCollisionPointRec(GetMousePosition(), button)) {
+				DrawTexture(startblue, 0, 100, WHITE);
 			}
 			else {
-				DrawTexture(jumpR, screenWidth / 2 - jumpR.width / 2, (int)player.y, WHITE);
-				DrawRectangleRec(player, BLACK);
+				DrawTexture(startred, 0, 100, WHITE);
 			}
 
-			if (click) {
-				player.y -= delay;
-				delay++;
-				if (delay == 8) {
-					delay = 0;
-					click = false;
+			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(GetMousePosition(), button)) {
+				play = false;
+				HideCursor();
+			}
+
+		}
+		else {
+
+			// if player collides with anything
+			if (CheckCollisionRecs(player, ground) || collisionCheckRectangle(player, pipes) || (collisionCheckTriangle(player, bricks)) || gameover) {
+				gameover = true;
+				
+				if (yyay) {
+					PlaySound(death);
+					yyay = false;
+				}
+
+				if (player.y < 650) {
+					DrawTexture(level, x * speed, 100, WHITE);
+					DrawTexture(dead, int(player.x) - 1, (int)player.y - 2, WHITE);
+					player.y += 2;
+				}
+				else {
+					if (!IsSoundPlaying(death)) {
+						if (byay) {
+							PlaySound(gover);
+							byay = false;
+						}
+						DrawTexture(endscreen, 0, 100, WHITE);
+					}
+					else {
+						DrawTexture(endscreen, 0, 100, WHITE);
+					}
 				}
 			}
-		//}
+			else { //game logic
+
+				//char buffer[20];
+				//sprintf_s(buffer, 20, "%f", player.x);
+
+				//char buffer3[20];
+				//sprintf_s(buffer3, 20, "%f", player.y);
+
+				//DrawText(buffer, 0, 400, 3, BLACK);
+				//DrawText(buffer3, 0, 410, 3, BLACK);
+
+				if (player.x < 389) {
+					player.x += 2;
+					DrawTexture(level, x * speed, 100, WHITE);
+				}
+				else {
+					DrawTexture(level, x * speed, 100, WHITE);
+					movePipes(pipes, speed);
+					//printPipes(pipes);
+					//DrawRectangleRec(ground, BLACK);
+
+					moveBricks(bricks, speed);
+					//printBricks(bricks);
+					x--;
+				}
+
+
+				//background
+				if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !click) {
+					PlaySound(jump);
+					if (alternate % 10 > 5) {
+						DrawTexture(runR, int(player.x) - 1, (int)player.y - 1, WHITE);
+						alternate++;
+					}
+					else {
+						DrawTexture(slideR, int(player.x) - 1, (int)player.y - 1, WHITE);
+						alternate++;
+						if (alternate > 10000) {
+							alternate = 0;
+						}
+					}
+
+					//DrawRectangleRec(player, BLACK);
+					click = true;
+
+				}
+				else if (IsMouseButtonUp(MOUSE_LEFT_BUTTON) && !click) {
+					if (alternate % 10 > 5) {
+						DrawTexture(runR, int(player.x) - 1, (int)player.y - 1, WHITE);
+						alternate++;
+					}
+					else {
+						DrawTexture(slideR, int(player.x) - 1, (int)player.y - 1, WHITE);
+						alternate++;
+						if (alternate > 10000) {
+							alternate = 0;
+						}
+					}
+
+					//DrawRectangleRec(player, BLACK);
+					player.y += 1;
+				}
+				else if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && !click) {
+					if (alternate % 10 > 5) {
+						DrawTexture(runR, int(player.x) - 1, (int)player.y - 2, WHITE);
+						alternate++;
+					}
+					else {
+						DrawTexture(slideR, int(player.x) - 1, (int)player.y - 2, WHITE);
+						alternate++;
+						if (alternate > 10000) {
+							alternate = 0;
+						}
+					}
+
+					//DrawRectangleRec(player, BLACK);
+					player.y += 1;
+				}
+				else {
+					DrawTexture(jumpR, int(player.x) - 1, (int)player.y, WHITE);
+					//DrawRectangleRec(player, BLACK);
+				}
+
+				if (click) {
+					player.y -= delay;
+					delay++;
+					if (delay == 8) {
+						delay = 0;
+						click = false;
+					}
+				}
+			}
+
+		}
 		// Draw
 		//----------------------------------------------------------------------------------
 		BeginDrawing();
@@ -315,136 +394,18 @@ int main()
 		//----------------------------------------------------------------------------------
 	}
 
+
+	
 	// De-Initialization
 	//--------------------------------------------------------------------------------------   
+	//UnloadSound(bgm);
+	//UnloadSound(win);
+	UnloadSound(death);
+	UnloadSound(gover);
+	UnloadSound(jump);
 	CloseWindow();        // Close window and OpenGL context
 	//--------------------------------------------------------------------------------------
 
 	return 0;
 }
 
-
-//
-//char buffer[20];
-//sprintf_s(buffer, 20, "%f", player.x);
-//
-//char buffer2[20];
-//sprintf_s(buffer2, 20, "%f", x);
-//DrawText(buffer, 0, 400, 3, BLACK);
-//DrawText(buffer2, 0, 410, 3, BLACK);
-//
-//
-//
-////background
-//if (IsKeyDown(KEY_RIGHT) && !CheckCollisionRecs(player, pipe1)) {
-//	DrawTexture(level, x * 3, 37, WHITE);
-//	DrawRectangleRec(pipe1, BLACK);
-//	DrawRectangleRec(player, BLACK);
-//	player.x += 3;
-//	x--;
-//}
-//else if (IsKeyDown(KEY_LEFT) && !CheckCollisionRecs(player, pipe1)) {
-//	DrawTexture(level, x * 3, 37, WHITE);
-//	DrawRectangleRec(pipe1, BLACK);
-//	DrawRectangleRec(player, BLACK);
-//	player.x -= 3;
-//	x++;
-//
-//	/*if (x * 3 > 0) {
-//	x = 0;
-//	}*/
-//}
-//else if (IsKeyDown(KEY_RIGHT) && CheckCollisionRecs(player, pipe1)) {
-//	DrawRectangleRec(pipe1, BLACK);
-//	DrawRectangleRec(player, BLACK);
-//	DrawTexture(level, x * 3, 37, WHITE);
-//
-//}
-//else if (IsKeyDown(KEY_LEFT) && CheckCollisionRecs(player, pipe1)) {
-//	DrawRectangleRec(pipe1, BLACK);
-//	DrawRectangleRec(player, BLACK);
-//	DrawTexture(level, x * 3, 37, WHITE);
-//}
-//else {
-//	DrawTexture(level, x * 3, 37, WHITE);
-//	DrawRectangleRec(player, BLACK);
-//	DrawRectangleRec(pipe1, BLACK);
-//}
-//
-//
-//if (IsKeyDown(KEY_RIGHT) && IsKeyUp(KEY_SPACE)) { // when only right key is pressed
-//	if (delay % 10 > 5) {
-//		DrawTexture(runR, screenWidth / 2 - runR.width / 2, (screenHeight / 2 - jumpR.height / 2) + y * 2, WHITE);
-//		delay++;
-//	}
-//	else {
-//		DrawTexture(slideR, screenWidth / 2 - slideR.width / 2, (screenHeight / 2 - jumpR.height / 2) + y * 2, WHITE);
-//		delay++;
-//		if (delay > 10000) {
-//			delay = 0;
-//		}
-//	}
-//	player.y += 2;
-//	if (player.y > (screenHeight / 2 - jumpR.height / 2)) {
-//		player.y = (screenHeight / 2 - jumpR.height / 2);
-//	}
-//	y++;
-//	if (y > 0) {
-//		y = 0;
-//	}
-//}
-//else if (IsKeyDown(KEY_RIGHT) && IsKeyDown(KEY_SPACE)) { // when right and space key is pressed
-//	DrawTexture(jumpR, screenWidth / 2 - jumpR.width / 2, (screenHeight / 2 - jumpR.height / 2) + y * 2, WHITE);
-//	player.y -= 2;
-//	y--;
-//	/*if (y * 2 < -100) {
-//	y = 0;
-//	}*/
-//}
-//else if (IsKeyDown(KEY_LEFT) && IsKeyUp(KEY_SPACE)) { // when only left key is pressed
-//	if (delay % 10 > 5) {
-//		DrawTexture(runL, screenWidth / 2 - runR.width / 2, (screenHeight / 2 - jumpR.height / 2) + y * 2, WHITE);
-//		delay++;
-//	}
-//	else {
-//		DrawTexture(slideL, screenWidth / 2 - slideR.width / 2, (screenHeight / 2 - jumpR.height / 2) + y * 2, WHITE);
-//		delay++;
-//		if (delay > 10000) {
-//			delay = 0;
-//		}
-//	}player.y += 2;
-//	if (player.y > (screenHeight / 2 - jumpR.height / 2)) {
-//		player.y = (screenHeight / 2 - jumpR.height / 2);
-//	}
-//	y++;
-//	if (y > 0) {
-//		y = 0;
-//	}
-//}
-//else if (IsKeyDown(KEY_LEFT) && IsKeyDown(KEY_SPACE)) { // when left and space key is pressed
-//	DrawTexture(jumpL, screenWidth / 2 - jumpL.width / 2, (screenHeight / 2 - jumpL.height / 2) + y * 2, WHITE);
-//	player.y -= 2;
-//	y--;
-//	/*if (y * 2 < -100) {
-//	y = 0;
-//	}*/
-//}
-//else if (IsKeyDown(KEY_SPACE)) { // when just space is pressed
-//	DrawTexture(standR, screenWidth / 2 - slideR.width / 2, (screenHeight / 2 - slideR.height / 2) + y * 2, WHITE);
-//	player.y -= 2;
-//	y--;
-//	/*if (y * 2 < -100) {
-//	y = 0;
-//	}*/
-//}
-//else { // when nothing is pressed
-//	DrawTexture(standR, screenWidth / 2 - slideR.width / 2, (screenHeight / 2 - slideR.height / 2) + y * 2, WHITE);
-//	player.y += 2;
-//	if (player.y > (screenHeight / 2 - jumpR.height / 2)) {
-//		player.y = (screenHeight / 2 - jumpR.height / 2);
-//	}
-//	y++;
-//	if (y > 0) {
-//		y = 0;
-//	}
-//}
