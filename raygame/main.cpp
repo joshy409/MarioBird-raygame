@@ -207,8 +207,6 @@ int main()
 	bricks.push_back(brick3);
 	Triangle brick4 = { Vector2{ 2236,100 }, Vector2{ 2236,62 + 100 }, Vector2{ 2301,100 } };
 	bricks.push_back(brick4);
-
-
 	Triangle brick5 = { Vector2{ 2343,100 }, Vector2{ 2343,103 + 100 }, Vector2{ 2453,100 } };
 	bricks.push_back(brick5);
 	Triangle brick6 = { Vector2{ 2509,173 }, Vector2{ 2382,300 }, Vector2{ 2509,300 } };
@@ -221,8 +219,7 @@ int main()
 	InitAudioDevice();
 	
 	Music bgm = LoadMusicStream("mariosound/mariotheme.ogg");
-	//Sound bgm = LoadSound("mariosound/mariotheme.ogg");
-	//Sound win = LoadSound("mariosound/win.ogg");
+	Sound win = LoadSound("mariosound/win.ogg");
 	Sound jump = LoadSound("mariosound/jump.ogg");
 	SetSoundVolume(jump, .3f);
 	Sound death = LoadSound("mariosound/death.ogg");
@@ -237,15 +234,22 @@ int main()
 	//TODO: add mario sound
 	EnableCursor();
 	ShowCursor();
-	PlayMusicStream(bgm);
+	
+
+	
 	bool yyay = true;
 	bool byay = true;
+
+
+	PlayMusicStream(bgm);
+
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
+		UpdateMusicStream(bgm);
 		//TODO: win screen
+
 		//if play button is clicked, play the game;
 		if (play) {
-			//PlaySound(bgm);
 			if (CheckCollisionPointRec(GetMousePosition(), button)) {
 				DrawTexture(startblue, 0, 100, WHITE);
 			}
@@ -257,19 +261,17 @@ int main()
 				play = false;
 				HideCursor();
 			}
-
 		}
 		else {
 
 			// if player collides with anything
 			if (CheckCollisionRecs(player, ground) || collisionCheckRectangle(player, pipes) || (collisionCheckTriangle(player, bricks)) || gameover) {
 				gameover = true;
-				
+				StopMusicStream(bgm);
 				if (yyay) {
 					PlaySound(death);
 					yyay = false;
 				}
-
 				if (player.y < 650) {
 					DrawTexture(level, x * speed, 100, WHITE);
 					DrawTexture(dead, int(player.x) - 1, (int)player.y - 2, WHITE);
@@ -288,7 +290,8 @@ int main()
 					}
 				}
 			}
-			else { //game logic
+			else { 
+				//game logic
 
 				//char buffer[20];
 				//sprintf_s(buffer, 20, "%f", player.x);
@@ -306,14 +309,9 @@ int main()
 				else {
 					DrawTexture(level, x * speed, 100, WHITE);
 					movePipes(pipes, speed);
-					//printPipes(pipes);
-					//DrawRectangleRec(ground, BLACK);
-
 					moveBricks(bricks, speed);
-					//printBricks(bricks);
 					x--;
 				}
-
 
 				//background
 				if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !click) {
@@ -329,8 +327,6 @@ int main()
 							alternate = 0;
 						}
 					}
-
-					//DrawRectangleRec(player, BLACK);
 					click = true;
 
 				}
@@ -346,8 +342,6 @@ int main()
 							alternate = 0;
 						}
 					}
-
-					//DrawRectangleRec(player, BLACK);
 					player.y += 1;
 				}
 				else if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && !click) {
@@ -362,13 +356,10 @@ int main()
 							alternate = 0;
 						}
 					}
-
-					//DrawRectangleRec(player, BLACK);
 					player.y += 1;
 				}
 				else {
 					DrawTexture(jumpR, int(player.x) - 1, (int)player.y, WHITE);
-					//DrawRectangleRec(player, BLACK);
 				}
 
 				if (click) {
@@ -388,8 +379,6 @@ int main()
 
 		ClearBackground(RAYWHITE);
 
-		//DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
-
 		EndDrawing();
 		//----------------------------------------------------------------------------------
 	}
@@ -398,11 +387,12 @@ int main()
 	
 	// De-Initialization
 	//--------------------------------------------------------------------------------------   
-	//UnloadSound(bgm);
-	//UnloadSound(win);
+	UnloadSound(win);
 	UnloadSound(death);
 	UnloadSound(gover);
 	UnloadSound(jump);
+	UnloadMusicStream(bgm);
+	CloseAudioDevice();
 	CloseWindow();        // Close window and OpenGL context
 	//--------------------------------------------------------------------------------------
 
