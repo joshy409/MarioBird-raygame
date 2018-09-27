@@ -129,14 +129,16 @@ void pipeclear(std::vector<Rectangle>& pipes) {
 	pipes.push_back(pipe15d);
 	Rectangle pipe15u = { 2865,0 + 100,30,112 };
 	pipes.push_back(pipe15u);
-	Rectangle ground = { 380 / 2,200 + 100,20,5 };
+	Rectangle ground = { 380 ,200 + 100,20,5 };
 	pipes.push_back(ground);
+	Rectangle top = { 380 ,100,20,5 };
+	pipes.push_back(top);
 	Rectangle goal = { 3176,0 + 100,3,200 };
 	pipes.push_back(goal);
 
 }
 
-//initializing
+//initializing bricks
 void brickclear(std::vector<Triangle>& bricks) {
 	bricks.clear();
 	Triangle brick1 = { Vector2{ 2207,235 }, Vector2{ 2145,300 }, Vector2{ 2207,300 } };
@@ -201,7 +203,6 @@ int main()
 	Image youwin = LoadImage("marioimage/youwin.png");
 	Texture2D winscreen = LoadTextureFromImage(youwin);
 
-	int y = 0;
 	float x = 0;
 	Rectangle player = { 250, 225, 22, 22 };
 
@@ -218,7 +219,7 @@ int main()
 	int delay = 0;
 	int alternate = 0;
 
-
+	//variable to control click speed
 	bool click = false;
 
 	//intial game setting
