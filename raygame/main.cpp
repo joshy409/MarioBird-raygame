@@ -20,7 +20,6 @@ struct Triangle {
 };
 
 bool collisionCheckRectangle(Rectangle player, std::vector<Rectangle> pipes) {
-	
 	for (auto &pipe : pipes) {
 		if (CheckCollisionRecs(player, pipe)) {
 			return true;
@@ -38,7 +37,6 @@ bool collisionCheckTriangle(Rectangle player, std::vector<Triangle> pipes) {
 			return true;
 		}
 	}
-
 	return false;
 }
 
@@ -61,17 +59,15 @@ void movePipes(std::vector<Rectangle>& pipes, int speed) {
 }
 
 void moveBricks(std::vector<Triangle>& bricks, int speed) {
-
 	for (auto &brick : bricks) {
 		brick.vertex1.x -= speed;
 		brick.vertex2.x -= speed;
 		brick.vertex3.x -= speed;
 	}
-
 }
 
 //initializing pipes
-void pipeclear(std::vector<Rectangle>& pipes) {
+void pipeClear(std::vector<Rectangle>& pipes) {
 	pipes.clear();
 	Rectangle pipe1d = { 449,170 + 100,30,30 };
 	pipes.push_back(pipe1d);
@@ -135,11 +131,10 @@ void pipeclear(std::vector<Rectangle>& pipes) {
 	pipes.push_back(top);
 	Rectangle goal = { 3176,0 + 100,3,200 };
 	pipes.push_back(goal);
-
 }
 
 //initializing bricks
-void brickclear(std::vector<Triangle>& bricks) {
+void brickClear(std::vector<Triangle>& bricks) {
 	bricks.clear();
 	Triangle brick1 = { Vector2{ 2207,235 }, Vector2{ 2145,300 }, Vector2{ 2207,300 } };
 	bricks.push_back(brick1);
@@ -159,6 +154,21 @@ void brickclear(std::vector<Triangle>& bricks) {
 	bricks.push_back(brick8);
 }
 
+//alternate runR and slideR image so that mario looks like its running
+void runAnimation(int& alternate, Rectangle player, Texture2D runR, Texture2D slideR) {
+	if (alternate % 10 > 5) {
+		DrawTexture(runR, int(player.x) - 1, (int)player.y - 1, WHITE);
+		alternate++;
+	}
+	else {
+		DrawTexture(slideR, int(player.x) - 1, (int)player.y - 1, WHITE);
+		alternate++;
+		if (alternate > 10000) {
+			alternate = 0;
+		}
+	}
+}
+
 int main()
 {
 	// Initialization
@@ -168,6 +178,7 @@ int main()
 
 	InitWindow(screenWidth, screenHeight, "Super Mario raylib");
 
+	//initialize images
 	Image mariostandR = LoadImage("marioimage/mariostandR.png");
 	ImageResize(&mariostandR, 24, 24);
 	Texture2D standR = LoadTextureFromImage(mariostandR);
@@ -203,14 +214,26 @@ int main()
 	Image youwin = LoadImage("marioimage/youwin.png");
 	Texture2D winscreen = LoadTextureFromImage(youwin);
 
+	//audio loading
+	InitAudioDevice();
+	Music bgm = LoadMusicStream("mariosound/mariotheme.ogg");
+	Sound win = LoadSound("mariosound/win.ogg");
+	Sound clear = LoadSound("mariosound/clear.ogg");
+	Sound jump = LoadSound("mariosound/jump.ogg");
+	SetSoundVolume(jump, .3f);
+	Sound death = LoadSound("mariosound/death.ogg");
+	Sound gover = LoadSound("mariosound/gover.ogg");
+
+	//initialize player collision box
 	float x = 0;
 	Rectangle player = { 250, 225, 22, 22 };
 
+	//initialize collision boxes
 	std::vector<Rectangle> pipes;
-	pipeclear(pipes);
+	pipeClear(pipes);
 	
 	std::vector<Triangle> bricks;
-	brickclear(bricks);
+	brickClear(bricks);
 
 	//start button
 	Rectangle button = { 298, 142 + 100, 167, 53 };
@@ -228,17 +251,6 @@ int main()
 	bool gwin = false;
 	bool play = true;
 
-	//audio loading
-	InitAudioDevice();
-	
-	Music bgm = LoadMusicStream("mariosound/mariotheme.ogg");
-	Sound win = LoadSound("mariosound/win.ogg");
-	Sound clear = LoadSound("mariosound/clear.ogg");
-	Sound jump = LoadSound("mariosound/jump.ogg");
-	SetSoundVolume(jump, .3f);
-	Sound death = LoadSound("mariosound/death.ogg");
-	Sound gover = LoadSound("mariosound/gover.ogg");
-
 	//variables used to only play sound once
 	bool once1 = true;
 	bool once2 = true;
@@ -252,6 +264,7 @@ int main()
 	//--------------------------------------------------------------------------------------
 	// Main game loop
 	SetTargetFPS(60);
+
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
 		UpdateMusicStream(bgm);
@@ -278,7 +291,7 @@ int main()
 				StopMusicStream(bgm);
 				gwin = true;
 
-				if (once1) { //play the win sound
+				if (once1) { //play win sound
 					PlaySound(win);
 					once1 = false;
 				}
@@ -304,18 +317,10 @@ int main()
 
 				if (!IsSoundPlaying(win) && !IsSoundPlaying(clear)) { // if both win and clear sound finished playing restart the game
 					//resetting game variables
-					x = 0;
-					player.y = 225;
-					player.x = 250;
-					play = true;
-					gameover = false;
-					gwin = false;
-					once1 = true;
-					once2 = true;
-					once3 = true;
+					x = 0; player.y = 225; player.x = 250; play = true; gameover = false; gwin = false; once1 = true; once2 = true; once3 = true;
 					ShowCursor();
-					pipeclear(pipes);
-					brickclear(bricks);
+					pipeClear(pipes);
+					brickClear(bricks);
 					PlayMusicStream(bgm);
 					continue; //go to the start of the loop
 				}
@@ -350,19 +355,11 @@ int main()
 
 				if (!IsSoundPlaying(gover) && !IsSoundPlaying(death)) {
 					//resetting game variables
-					x = 0;
-					player.y = 225;
-					player.x = 250;
-					play = true;
-					gameover = false;
-					gwin = false;
-					once1 = true;
-					once2 = true;
-					once3 = true;
+					x = 0; player.y = 225; player.x = 250; play = true; gameover = false; gwin = false; once1 = true; once2 = true; once3 = true;
 					ShowCursor();
+					pipeClear(pipes);
+					brickClear(bricks);
 					PlayMusicStream(bgm);
-					pipeclear(pipes);
-					brickclear(bricks);
 					continue; //go to the start of the loop
 				}
 			}
@@ -384,50 +381,20 @@ int main()
 				//game command logic
 				if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !click) {
 					PlaySound(jump);
-					//alternate runR and slideR image so that mario looks like its running
-					if (alternate % 10 > 5) {
-						DrawTexture(runR, int(player.x) - 1, (int)player.y - 1, WHITE);
-						alternate++;
-					}
-					else {
-						DrawTexture(slideR, int(player.x) - 1, (int)player.y - 1, WHITE);
-						alternate++;
-						if (alternate > 10000) {
-							alternate = 0;
-						}
-					}
+					runAnimation(alternate, player, runR, slideR);
 					click = true;
 
 				}
 				//alternate runR and slideR image so that mario looks like its running
 				else if (IsMouseButtonUp(MOUSE_LEFT_BUTTON) && !click) {
-					if (alternate % 10 > 5) {
-						DrawTexture(runR, int(player.x) - 1, (int)player.y - 1, WHITE);
-						alternate++;
-					}
-					else {
-						DrawTexture(slideR, int(player.x) - 1, (int)player.y - 1, WHITE);
-						alternate++;
-						if (alternate > 10000) {
-							alternate = 0;
-						}
-					}
+					
+					runAnimation(alternate, player, runR, slideR);
 					player.y += 1; //player slowly decends 
 				}
 
 				else if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && !click) {
 					//nothing happens when the left mouse button is held down
-					if (alternate % 10 > 5) {
-						DrawTexture(runR, int(player.x) - 1, (int)player.y - 2, WHITE);
-						alternate++;
-					}
-					else {
-						DrawTexture(slideR, int(player.x) - 1, (int)player.y - 2, WHITE);
-						alternate++;
-						if (alternate > 10000) {
-							alternate = 0;
-						}
-					}
+					runAnimation(alternate, player, runR, slideR);
 					player.y += 1;
 				}
 				else {
@@ -447,9 +414,7 @@ int main()
 		// Draw
 		//----------------------------------------------------------------------------------
 		BeginDrawing();
-
 		ClearBackground(RAYWHITE);
-
 		EndDrawing();
 		//----------------------------------------------------------------------------------
 	}
