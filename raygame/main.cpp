@@ -175,6 +175,7 @@ int main()
 	//--------------------------------------------------------------------------------------
 	int screenWidth = 800;
 	int screenHeight = 450;
+	int yoffset = 100;
 
 	InitWindow(screenWidth, screenHeight, "Super Mario raylib");
 
@@ -236,7 +237,7 @@ int main()
 	brickClear(bricks);
 
 	//start button
-	Rectangle button = { 298, 142 + 100, 167, 53 };
+	Rectangle button = { 298, 142 + yoffset, 167, 53 };
 
 	//variables to control loop speed
 	int delay = 0;
@@ -256,6 +257,10 @@ int main()
 	bool once2 = true;
 	bool once3 = true;
 
+	int jumpHeight = 8;
+	int startPositonX = 389;
+
+
 	PlayMusicStream(bgm);
 
 	EnableCursor();
@@ -267,15 +272,17 @@ int main()
 
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
+		PlayMusicStream(bgm);
 		UpdateMusicStream(bgm);
 
 		//if play button is clicked, play the game;
 		if (play) {
+			
 			if (CheckCollisionPointRec(GetMousePosition(), button)) {
-				DrawTexture(startblue, 0, 100, WHITE);
+				DrawTexture(startblue, 0, yoffset, WHITE);
 			}
 			else {
-				DrawTexture(startred, 0, 100, WHITE);
+				DrawTexture(startred, 0, yoffset, WHITE);
 			}
 
 			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(GetMousePosition(), button)) {
@@ -305,12 +312,12 @@ int main()
 				}
 				else {
 					if (player.y < 280) { //charcter slides down the rope
-						DrawTexture(level, x * speed, 100, WHITE);
+						DrawTexture(level, x * speed, yoffset, WHITE);
 						DrawTexture(jumpR, int(player.x) - 1, (int)player.y - 2, WHITE);
 						player.y += 2;
 					}
 					else {
-						DrawTexture(level, x * speed, 100, WHITE);
+						DrawTexture(level, x * speed, yoffset, WHITE);
 						DrawTexture(jumpR, int(player.x) - 1, (int)player.y - 2, WHITE);
 					}
 				}
@@ -336,7 +343,7 @@ int main()
 				}
 
 				if (!IsSoundPlaying(death)) { //when death sound is done playing display endscreen and play gover sound
-					DrawTexture(endscreen, 0, 100, WHITE);
+					DrawTexture(endscreen, 0, yoffset, WHITE);
 					if (once2) {
 						PlaySound(gover);
 						once2 = false;
@@ -344,12 +351,12 @@ int main()
 				}
 				else {
 					if (player.y < 650) { //player falls of the screen
-						DrawTexture(level, x * speed, 100, WHITE);
+						DrawTexture(level, x * speed, yoffset, WHITE);
 						DrawTexture(dead, int(player.x) - 1, (int)player.y - 2, WHITE);
 						player.y += 2;
 					}
 					else {
-						DrawTexture(level, x * speed, 100, WHITE);
+						DrawTexture(level, x * speed, yoffset, WHITE);
 					}
 				}
 
@@ -367,12 +374,12 @@ int main()
 				//game play
 
 				//move the background
-				if (player.x < 389) {
+				if (player.x < startPositonX) {
 					player.x += 2;
-					DrawTexture(level, x * speed, 100, WHITE);
+					DrawTexture(level, x * speed, yoffset, WHITE);
 				}
 				else {
-					DrawTexture(level, x * speed, 100, WHITE);
+					DrawTexture(level, x * speed, yoffset, WHITE);
 					movePipes(pipes, speed);
 					moveBricks(bricks, speed);
 					x--;
@@ -404,7 +411,7 @@ int main()
 				if (click) { //when a player click left mouse button slowly ascend mario up 8 y units
 					player.y -= delay;
 					delay++;
-					if (delay == 8) {
+					if (delay == jumpHeight) {
 						delay = 0;
 						click = false;
 					}
@@ -432,4 +439,3 @@ int main()
 
 	return 0;
 }
-
