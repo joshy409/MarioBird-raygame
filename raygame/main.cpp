@@ -108,9 +108,9 @@ void pipeClear(std::vector<Rectangle>& pipes) {
 	pipes.push_back(pipe8d);
 	Rectangle pipe8u = { 1441,0 + 100,30,126 };
 	pipes.push_back(pipe8u);
-	Rectangle pipe9d = { 1625,93 + 100,30,107 };
+	Rectangle pipe9d = { 1625,95 + 100,30,107 };
 	pipes.push_back(pipe9d);
-	Rectangle pipe9u = { 1625,0 + 100,30,35 };
+	Rectangle pipe9u = { 1625,0 + 100,30,34 };
 	pipes.push_back(pipe9u);
 	Rectangle pipe10d = { 1764,160 + 100,30,40 };
 	pipes.push_back(pipe10d);
@@ -132,9 +132,9 @@ void pipeClear(std::vector<Rectangle>& pipes) {
 	pipes.push_back(pipe13d);
 	Rectangle pipe14d = { 2785,154 + 100,30,48 };
 	pipes.push_back(pipe14d);
-	Rectangle ground = { 380 ,200 + 100,20,5 };
+	Rectangle ground = { 380 ,200 + 100,3392,5 };
 	pipes.push_back(ground);
-	Rectangle top = { 380 ,100,20,5 };
+	Rectangle top = { 380 ,100,3392,2 };
 	pipes.push_back(top);
 	Rectangle goal = { 3176,0 + 100,3,200 };
 	pipes.push_back(goal);
@@ -309,11 +309,11 @@ int main()
 			
 			if (CheckCollisionPointRec(GetMousePosition(), button)) {
 				DrawTexture(startblue, 0, yoffset, WHITE);
-				DrawText(("High Score " + (std::to_string(highscore/12))).c_str(), 100, 80, 20, BLACK);
+				DrawText(("High Score " + (std::to_string(highscore/12))).c_str(), 50, 80, 20, BLACK);
 			}
 			else {
 				DrawTexture(startred, 0, yoffset, WHITE);
-				DrawText(("High Score " + (std::to_string(highscore/12))).c_str(), 100, 80, 20, BLACK);
+				DrawText(("High Score " + (std::to_string(highscore/12))).c_str(), 50, 80, 20, BLACK);
 			}
 
 			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(GetMousePosition(), button)) {
@@ -379,6 +379,7 @@ int main()
 
 				if (!IsSoundPlaying(death)) { //when death sound is done playing display endscreen and play gover sound
 					DrawTexture(endscreen, 0, yoffset, WHITE);
+					DrawText(("Score " + (std::to_string(score / 12))).c_str(), 100, 80, 20, BLACK);
 					if (once2) {
 						PlaySound(gover);
 						once2 = false;
@@ -387,10 +388,12 @@ int main()
 				else {
 					if (player.y < 650) { //player falls of the screen
 						DrawTexture(level, x * speed, yoffset, WHITE);
+						DrawText(("Score " + (std::to_string(score / 12))).c_str(), 100, 80, 20, BLACK);
 						DrawTexture(dead, int(player.x) - 1, (int)player.y - 2, WHITE);
 						player.y += 2;
 					}
 					else {
+						DrawText(("Score " + (std::to_string(score / 12))).c_str(), 100, 80, 20, BLACK);
 						DrawTexture(level, x * speed, yoffset, WHITE);
 					}
 				}
