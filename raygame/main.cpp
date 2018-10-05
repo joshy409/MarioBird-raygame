@@ -247,6 +247,7 @@ int main()
 	SetSoundVolume(jump, .3f);
 	Sound death = LoadSound("mariosound/death.ogg");
 	Sound gover = LoadSound("mariosound/gover.ogg");
+	Sound coin = LoadSound("mariosound/coin.ogg");
 
 	//initialize player collision box
 	float x = 0;
@@ -282,6 +283,7 @@ int main()
 	bool once1 = true;
 	bool once2 = true;
 	bool once3 = true;
+	bool once4 = true;
 
 	int jumpHeight = 8;
 	int startPositonX = 389;
@@ -359,7 +361,8 @@ int main()
 					x = 0; player.y = 225; player.x = 250; play = true; gameover = false; gwin = false; once1 = true; once2 = true; once3 = true; score = 0;
 					ShowCursor();
 					pipeClear(pipes);
-					brickClear(bricks);
+					brickClear(bricks); 
+					pointsClear(pipes, points);
 					PlayMusicStream(bgm);
 					continue; //go to the start of the loop
 				}
@@ -401,8 +404,8 @@ int main()
 					ShowCursor();
 					pipeClear(pipes);
 					brickClear(bricks);
+					pointsClear(pipes, points);
 					PlayMusicStream(bgm);
-					
 					continue; //go to the start of the loop
 				}
 			}
@@ -427,6 +430,13 @@ int main()
 				//if player successfully passes a pipe
 				if (collisionCheckRectangle(player, points)) {
 					score++;
+					if (once4) {
+						PlaySound(coin);
+						once4 = false;
+					}
+				}
+				else {
+					once4 = true;
 				}
 
 				//game command logic
