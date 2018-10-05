@@ -11,7 +11,7 @@
 
 #include "raylib.h"
 #include <vector>
-
+#include <string>
 
 struct Triangle {
 	Vector2 vertex1;
@@ -52,6 +52,13 @@ void printBricks(std::vector<Triangle>& bricks) {
 	}
 }
 
+
+void printPoints(std::vector<Rectangle>& points) {
+	for (auto &point : points) {
+		DrawRectangleRec(point, BLACK);
+	}
+}
+
 void movePipes(std::vector<Rectangle>& pipes, int speed) {
 	for (auto &pipe : pipes) {
 		pipe.x -= speed;
@@ -71,14 +78,14 @@ void pipeClear(std::vector<Rectangle>& pipes) {
 	pipes.clear();
 	Rectangle pipe1d = { 449,170 + 100,30,30 };
 	pipes.push_back(pipe1d);
-	Rectangle pipe2d = { 610,154 + 100,30,50 };
-	pipes.push_back(pipe2d);
-	Rectangle pipe3d = { 737,138 + 100,30,67 };
-	pipes.push_back(pipe3d);
 	Rectangle pipe1u = { 449,0 + 100,30,60 };
 	pipes.push_back(pipe1u);
+	Rectangle pipe2d = { 610,154 + 100,30,50 };
+	pipes.push_back(pipe2d);
 	Rectangle pipe2u = { 610,0 + 100,30,93 };
 	pipes.push_back(pipe2u);
+	Rectangle pipe3d = { 737,138 + 100,30,67 };
+	pipes.push_back(pipe3d);
 	Rectangle pipe3u = { 737,0 + 100,30,58 };
 	pipes.push_back(pipe3u);
 	Rectangle pipe4d = { 914,138 + 100,30,67 };
@@ -117,14 +124,14 @@ void pipeClear(std::vector<Rectangle>& pipes) {
 	pipes.push_back(pipe12d);
 	Rectangle pipe12u = { 2053,0 + 100,30,54 };
 	pipes.push_back(pipe12u);
-	Rectangle pipe13d = { 2610,169 + 100,30,30 };
-	pipes.push_back(pipe13d);
-	Rectangle pipe14d = { 2785,154 + 100,30,48 };
-	pipes.push_back(pipe14d);
 	Rectangle pipe15d = { 2866,170 + 100,30,30 };
 	pipes.push_back(pipe15d);
 	Rectangle pipe15u = { 2865,0 + 100,30,112 };
 	pipes.push_back(pipe15u);
+	Rectangle pipe13d = { 2610,169 + 100,30,30 };
+	pipes.push_back(pipe13d);
+	Rectangle pipe14d = { 2785,154 + 100,30,48 };
+	pipes.push_back(pipe14d);
 	Rectangle ground = { 380 ,200 + 100,20,5 };
 	pipes.push_back(ground);
 	Rectangle top = { 380 ,100,20,5 };
@@ -152,6 +159,22 @@ void brickClear(std::vector<Triangle>& bricks) {
 	bricks.push_back(brick7);
 	Triangle brick8 = { Vector2{ 3022,173 }, Vector2{ 2897,300 }, Vector2{ 3022,300 } };
 	bricks.push_back(brick8);
+}
+
+//initializing scores
+void pointsClear(std::vector<Rectangle>&pipes, std::vector<Rectangle>& points) {
+	points.clear();
+	for (int i = 0; i < 26; i++) {
+		Rectangle point = { pipes[i].x + 14, pipes[i + 1].y + pipes[i + 1].height, 1, pipes[i].y - (pipes[i + 1].y + pipes[i + 1].height) };
+		points.push_back(point);
+		i++;
+	}
+}
+
+void movePoints(std::vector<Rectangle>& points, int speed) {
+	for (auto &point : points) {
+		point.x -= speed;
+	}
 }
 
 //alternate runR and slideR image so that mario looks like its running
@@ -236,6 +259,9 @@ int main()
 	std::vector<Triangle> bricks;
 	brickClear(bricks);
 
+	std::vector<Rectangle> points;
+	pointsClear(pipes, points);
+
 	//start button
 	Rectangle button = { 298, 142 + yoffset, 167, 53 };
 
@@ -259,7 +285,8 @@ int main()
 
 	int jumpHeight = 8;
 	int startPositonX = 389;
-
+	int score = 0;
+	int highscore = 0;
 
 	PlayMusicStream(bgm);
 
@@ -280,9 +307,11 @@ int main()
 			
 			if (CheckCollisionPointRec(GetMousePosition(), button)) {
 				DrawTexture(startblue, 0, yoffset, WHITE);
+				DrawText(("High Score " + (std::to_string(highscore/12))).c_str(), 100, 80, 20, BLACK);
 			}
 			else {
 				DrawTexture(startred, 0, yoffset, WHITE);
+				DrawText(("High Score " + (std::to_string(highscore/12))).c_str(), 100, 80, 20, BLACK);
 			}
 
 			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(GetMousePosition(), button)) {
@@ -323,8 +352,11 @@ int main()
 				}
 
 				if (!IsSoundPlaying(win) && !IsSoundPlaying(clear)) { // if both win and clear sound finished playing restart the game
+					if (score > highscore) {
+						highscore = score;
+					}
 					//resetting game variables
-					x = 0; player.y = 225; player.x = 250; play = true; gameover = false; gwin = false; once1 = true; once2 = true; once3 = true;
+					x = 0; player.y = 225; player.x = 250; play = true; gameover = false; gwin = false; once1 = true; once2 = true; once3 = true; score = 0;
 					ShowCursor();
 					pipeClear(pipes);
 					brickClear(bricks);
@@ -361,12 +393,16 @@ int main()
 				}
 
 				if (!IsSoundPlaying(gover) && !IsSoundPlaying(death)) {
+					if (score > highscore) {
+						highscore = score;
+					}
 					//resetting game variables
-					x = 0; player.y = 225; player.x = 250; play = true; gameover = false; gwin = false; once1 = true; once2 = true; once3 = true;
+					x = 0; player.y = 225; player.x = 250; play = true; gameover = false; gwin = false; once1 = true; once2 = true; once3 = true; score = 0;
 					ShowCursor();
 					pipeClear(pipes);
 					brickClear(bricks);
 					PlayMusicStream(bgm);
+					
 					continue; //go to the start of the loop
 				}
 			}
@@ -377,12 +413,20 @@ int main()
 				if (player.x < startPositonX) {
 					player.x += 2;
 					DrawTexture(level, x * speed, yoffset, WHITE);
+					DrawText(("Score " + (std::to_string(score/12))).c_str(), 100, 80, 20, BLACK);
 				}
 				else {
 					DrawTexture(level, x * speed, yoffset, WHITE);
+					DrawText(("Score " + (std::to_string(score/12))).c_str(), 100, 80, 20, BLACK);
 					movePipes(pipes, speed);
 					moveBricks(bricks, speed);
+					movePoints(points, speed);
 					x--;
+				}
+
+				//if player successfully passes a pipe
+				if (collisionCheckRectangle(player, points)) {
+					score++;
 				}
 
 				//game command logic
