@@ -8,6 +8,8 @@ Mario Bird
 
 ## How to play
 Play with Sound!
+
 Play with left mouse button.
+
 Get to the goal without touching the sky, ground, pipe, and bricks
 
